@@ -1,3 +1,5 @@
+use num::integer::div_mod_floor;
+use std::error::Error;
 use std::time::{Duration, Instant};
 use std::io::{self, Write};
 
@@ -18,12 +20,12 @@ impl Pomo {
 
     pub fn new(minutes: u64) -> Pomo {
         let seconds = Duration::new(minutes * 60, 0);
-        let pomo = Pomo {
-                           time_left: Some(seconds),
-                           start_time: None,
-                           display_time: seconds.as_secs(),
-                           done: false };
-        return pomo;
+        Pomo {
+            time_left: Some(seconds),
+            start_time: None,
+            display_time: seconds.as_secs(),
+            done: false
+        }
     }
 
     pub fn start(&mut self) {
@@ -51,14 +53,34 @@ impl Pomo {
         match currently_left {
             currently_left if currently_left != self.display_time => {
                 self.display_time = currently_left;
-                //println!("{}", self.display_time);
-                print!("\r{}", self.display_time);
-                io::stdout().flush().unwrap();
+                self.generate_remaining_string();
             },
             _ => {},
         }
     }
 
+    fn generate_remaining_string(&self) {
+       let (minutes, seconds) = div_mod_floor(self.display_time, 60);
+       let min_string = self.make_two_digit_str(minutes);
+       let sec_string = self.make_two_digit_str(seconds);
+
+       print!("\r{}:{} until done.", min_string, sec_string);
+       io::stdout().flush().unwrap();
+
+    }
+
+    fn make_two_digit_str(&self, input_val: u64) -> String {
+        let number_string = input_val.to_string();
+        match number_string.len() {
+            1 => {
+                  let mut new_num_string: String = "0".to_string();
+                  new_num_string.push_str(&number_string);
+                  new_num_string
+                  },
+            2 => number_string,
+            _ => "incorrect_value supplied".to_string(),
+        }
+    }
 }
 
 fn main() {
