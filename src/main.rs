@@ -1,4 +1,5 @@
-use std::{fmt::Display, time::{Duration, Instant}};
+use std::time::{Duration, Instant};
+use std::io::{self, Write};
 
 pub struct Pomo {
     time_left: Option<Duration>,
@@ -12,11 +13,6 @@ impl Default for Pomo {
         Pomo::new(25)
     }
 }
-
-//impl Display for Pomo {
-//    fn display_remaining(&self) -> String {
-//        format!("{}", self.time_left.unwrap().as_secs())
-//}
 
 impl Pomo {
 
@@ -38,7 +34,7 @@ impl Pomo {
         let elapsed = self.start_time.unwrap().elapsed();
         match elapsed {
             elapsed if  elapsed < self.time_left.unwrap() => {
-                self.display_remaining_time(self.time_left.unwrap().as_secs() - elapsed.as_secs());
+                self.display_remaining_time(elapsed);
             },
             _ => {
                 println!("All done");
@@ -47,11 +43,17 @@ impl Pomo {
             }
         }
 
-    fn display_remaining_time(&mut self, currently_left: u64) {
+    fn display_remaining_time(&mut self, elapsed_time: Duration) {
+        let currently_left = {
+            self.time_left.unwrap().as_secs() - elapsed_time.as_secs()
+        };
+
         match currently_left {
             currently_left if currently_left != self.display_time => {
                 self.display_time = currently_left;
-                print!("{}", self.display_time);
+                //println!("{}", self.display_time);
+                print!("\r{}", self.display_time);
+                io::stdout().flush().unwrap();
             },
             _ => {},
         }
