@@ -1,5 +1,4 @@
 use num::integer::div_mod_floor;
-use std::error::Error;
 use std::time::{Duration, Instant};
 use std::io::{self, Write};
 
@@ -39,11 +38,14 @@ impl Pomo {
                 self.display_remaining_time(elapsed);
             },
             _ => {
-                println!("All done");
+                print!("\rAll done");
+                io::stdout().flush().unwrap();
+                self.done = true;
             }
 
             }
-        }
+
+    }
 
     fn display_remaining_time(&mut self, elapsed_time: Duration) {
         let currently_left = {
@@ -66,7 +68,6 @@ impl Pomo {
 
        print!("\r{}:{} until done.", min_string, sec_string);
        io::stdout().flush().unwrap();
-
     }
 
     fn make_two_digit_str(&self, input_val: u64) -> String {
@@ -90,6 +91,6 @@ fn main() {
 
     loop {
         timer.check_finished();
-
+        if let true = timer.done { break }
     }
 }
