@@ -31,16 +31,12 @@ impl Pomo {
         self.start_time = Some(Instant::now());
     }
 
-    pub fn check_finished(&mut self) {
+    pub fn check_finished(&mut self) -> Option<Duration> {
         let elapsed = self.start_time.unwrap().elapsed();
         match elapsed {
-            elapsed if  elapsed < self.time_left.unwrap() => {
-                self.display_remaining_time(elapsed);
-            },
+            elapsed if  elapsed < self.time_left.unwrap() => Some(elapsed),
             _ => {
-                print!("\rAll done");
-                io::stdout().flush().unwrap();
-                self.done = true;
+                None
             }
 
             }
@@ -90,7 +86,18 @@ fn main() {
     timer.start();
 
     loop {
-        timer.check_finished();
-        if let true = timer.done { break }
+        match timer.check_finished() {
+            Some(x) => timer.display_remaining_time(x),
+            None => {
+                print!("\r                   ");
+                io::stdout().flush().unwrap();
+                break
+            }
+        }
     }
+
+    //io::stdout().write_all(b"").unwrap();
+    print!("\rAll done!\n");
+    //io::stdout().write_fmt(format_args!("All Done!")).unwrap();
+    io::stdout().flush().unwrap();
 }
